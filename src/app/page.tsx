@@ -34,7 +34,7 @@ export default async function Home({searchParams}:homeProps) {
           <section>
             <div className="home__cars-wrapper">              
               {carsData?.map((value,index)=>{
-                return <Cards data={value} />
+                return <Cards key={index} data={value} />
               })}
             </div>
           </section>
