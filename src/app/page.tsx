@@ -1,95 +1,56 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import {Hero,SearchBar,CustomFilter,Cards} from '@/components/index'
+import { fetchCars } from "@/utils";
+import { carType, homeProps, filters } from "@/types";
+import {fuels, yearsOfProduction} from '@/constants/index'
+import ShowMore from '@/components/ShowMore';
 
-export default function Home() {
+export default async function Home({searchParams}:homeProps) {
+
+  let carsData:carType[] = await fetchCars({limit:searchParams.limit || 10});
+  let isDataEmpty:boolean = !Array.isArray(carsData) || carsData.length < 1 || !carsData
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div style={{ overflow: "hidden" }}>
+      <Hero />
+      <div className="mid-container" id="discover">
+        <div className="mid-container__heading">
+          <span className="mid-container__heading__title">Car Catalogue</span>
+          <span className="mid-container__heading__bottom">
+            Explore the cars you might like
+          </span>
         </div>
-      </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+        {/* search filter */}
+        <div className="home__filter">
+          <SearchBar />
+          <div className="home__filter-container">
+            <CustomFilter data={fuels} />
+            <CustomFilter data={yearsOfProduction} />
+          </div>
+        </div>
+
+        {/* Car catalogue */}
+        {!isDataEmpty ? (
+          <section>
+            <div className="home__cars-wrapper">              
+              {carsData?.map((value,index)=>{
+                return <Cards data={value} />
+              })}
+            </div>
+          </section>
+        ) : (
+          <div className="home__error-container">
+            <h2>Oops, no results</h2>
+            <span>Cars data working in progress!</span>
+          </div>
+        )}
+
+        <ShowMore 
+          pageNumber={(searchParams.limit || 10) / 10}
+          isNext={(searchParams.limit || 10) > carsData.length}
         />
+        
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
